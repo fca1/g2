@@ -695,3 +695,40 @@ stat_t io_set_output(nvObj_t *nv)
         xio_writeline(cs.out_buf);
     }
 #endif
+
+// Gestion protection du solenoide
+void output_manage_monostable(void)
+{
+static Motate::Timeout solenoid_timer;      // time to expire current debounce lockout, or 0 if no lockout
+uint32_t constexpr        lockout_ms=4000;                // number of milliseconds for debounce lockout
+if ((float)output_3_pin>=1.0)
+	{
+	if (solenoid_timer.isSet())
+		{
+		if (solenoid_timer.isPast())
+			{
+			asm("nop");
+			solenoid_timer.clear();
+			output_3_pin=0.0;
+			}
+		}
+	else
+		{
+		asm("nop");
+		// Demarrer le timer. 
+		solenoid_timer.set(lockout_ms);
+		}
+	}
+else
+	{
+	if (solenoid_timer.isSet())
+		{
+		solenoid_timer.clear();
+		}
+
+	}
+}
+
+
+
+

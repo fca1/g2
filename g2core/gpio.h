@@ -126,6 +126,7 @@ void gpio_init(void);
 void gpio_reset(void);
 void input_reset(void);
 void output_reset(void);
+void output_manage_monostable(void);
 
 bool gpio_read_input(const uint8_t input_num);
 void gpio_set_homing_mode(const uint8_t input_num, const bool is_homing);

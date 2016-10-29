@@ -390,7 +390,7 @@ struct NeoPixel {
     // 1 bit of "buffer"
     // 32 bits per pixel
     // 1 bit to turn the PWM off
-    uint16_t _period_buffer[1 + 32 * pixel_count + 1];
+    uint16_t _period_buffer[1 + 3*16 *pixel_count + 1];
 
     Motate::Timeout _update_timeout;
     const uint32_t  _update_timeout_ms;
@@ -398,10 +398,10 @@ struct NeoPixel {
 
     constexpr NeoPixel(NeoPixelOrder new_order, uint32_t update_ms = 1)
         : _pixel_order{new_order},
-          _white_offset{(((uint32_t)_pixel_order >> 6) & 0b11) << 3},
-          _red_offset{(((uint32_t)_pixel_order >> 4) & 0b11) << 3},
-          _green_offset{(((uint32_t)_pixel_order >> 2) & 0b11) << 3},
-          _blue_offset{((uint32_t)_pixel_order & 0b11) << 3},
+          _white_offset{(((uint32_t)_pixel_order >> 6) & 0b11) << 4},
+          _red_offset{(((uint32_t)_pixel_order >> 4) & 0b11) << 4},
+          _green_offset{(((uint32_t)_pixel_order >> 2) & 0b11) << 4},
+          _blue_offset{((uint32_t)_pixel_order & 0b11) << 4},
           _has_white{(_white_offset != _red_offset)},
           _pixel_pin{Motate::kNormal, base_frequency},
           _update_timeout_ms{update_ms} {
@@ -426,43 +426,44 @@ struct NeoPixel {
             // blue -= white;
         }
         _period_buffer[0 + 1 + _red_offset + (pixel * 32)] = (red & 0b10000000) ? led_ON : led_OFF;
-        _period_buffer[1 + 1 + _red_offset + (pixel * 32)] = (red & 0b01000000) ? led_ON : led_OFF;
-        _period_buffer[2 + 1 + _red_offset + (pixel * 32)] = (red & 0b00100000) ? led_ON : led_OFF;
-        _period_buffer[3 + 1 + _red_offset + (pixel * 32)] = (red & 0b00010000) ? led_ON : led_OFF;
-        _period_buffer[4 + 1 + _red_offset + (pixel * 32)] = (red & 0b00001000) ? led_ON : led_OFF;
-        _period_buffer[5 + 1 + _red_offset + (pixel * 32)] = (red & 0b00000100) ? led_ON : led_OFF;
-        _period_buffer[6 + 1 + _red_offset + (pixel * 32)] = (red & 0b00000010) ? led_ON : led_OFF;
-        _period_buffer[7 + 1 + _red_offset + (pixel * 32)] = (red & 0b00000001) ? led_ON : led_OFF;
+        _period_buffer[2 + 1 + _red_offset + (pixel * 32)] = (red & 0b01000000) ? led_ON : led_OFF;
+        _period_buffer[4 + 1 + _red_offset + (pixel * 32)] = (red & 0b00100000) ? led_ON : led_OFF;
+        _period_buffer[6 + 1 + _red_offset + (pixel * 32)] = (red & 0b00010000) ? led_ON : led_OFF;
+        _period_buffer[8 + 1 + _red_offset + (pixel * 32)] = (red & 0b00001000) ? led_ON : led_OFF;
+        _period_buffer[10 + 1 + _red_offset + (pixel * 32)] = (red & 0b00000100) ? led_ON : led_OFF;
+        _period_buffer[12 + 1 + _red_offset + (pixel * 32)] = (red & 0b00000010) ? led_ON : led_OFF;
+        _period_buffer[14 + 1 + _red_offset + (pixel * 32)] = (red & 0b00000001) ? led_ON : led_OFF;
+
 
         _period_buffer[0 + 1 + _green_offset + (pixel * 32)] = (green & 0b10000000) ? led_ON : led_OFF;
-        _period_buffer[1 + 1 + _green_offset + (pixel * 32)] = (green & 0b01000000) ? led_ON : led_OFF;
-        _period_buffer[2 + 1 + _green_offset + (pixel * 32)] = (green & 0b00100000) ? led_ON : led_OFF;
-        _period_buffer[3 + 1 + _green_offset + (pixel * 32)] = (green & 0b00010000) ? led_ON : led_OFF;
-        _period_buffer[4 + 1 + _green_offset + (pixel * 32)] = (green & 0b00001000) ? led_ON : led_OFF;
-        _period_buffer[5 + 1 + _green_offset + (pixel * 32)] = (green & 0b00000100) ? led_ON : led_OFF;
-        _period_buffer[6 + 1 + _green_offset + (pixel * 32)] = (green & 0b00000010) ? led_ON : led_OFF;
-        _period_buffer[7 + 1 + _green_offset + (pixel * 32)] = (green & 0b00000001) ? led_ON : led_OFF;
+        _period_buffer[2 + 1 + _green_offset + (pixel * 32)] = (green & 0b01000000) ? led_ON : led_OFF;
+        _period_buffer[4 + 1 + _green_offset + (pixel * 32)] = (green & 0b00100000) ? led_ON : led_OFF;
+        _period_buffer[6 + 1 + _green_offset + (pixel * 32)] = (green & 0b00010000) ? led_ON : led_OFF;
+        _period_buffer[8 + 1 + _green_offset + (pixel * 32)] = (green & 0b00001000) ? led_ON : led_OFF;
+        _period_buffer[10 + 1 + _green_offset + (pixel * 32)] = (green & 0b00000100) ? led_ON : led_OFF;
+        _period_buffer[12 + 1 + _green_offset + (pixel * 32)] = (green & 0b00000010) ? led_ON : led_OFF;
+        _period_buffer[14 + 1 + _green_offset + (pixel * 32)] = (green & 0b00000001) ? led_ON : led_OFF;
 
         _period_buffer[0 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b10000000) ? led_ON : led_OFF;
-        _period_buffer[1 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b01000000) ? led_ON : led_OFF;
-        _period_buffer[2 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00100000) ? led_ON : led_OFF;
-        _period_buffer[3 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00010000) ? led_ON : led_OFF;
-        _period_buffer[4 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00001000) ? led_ON : led_OFF;
-        _period_buffer[5 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00000100) ? led_ON : led_OFF;
-        _period_buffer[6 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00000010) ? led_ON : led_OFF;
-        _period_buffer[7 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00000001) ? led_ON : led_OFF;
-
+        _period_buffer[2 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b01000000) ? led_ON : led_OFF;
+        _period_buffer[4 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00100000) ? led_ON : led_OFF;
+        _period_buffer[6 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00010000) ? led_ON : led_OFF;
+        _period_buffer[8 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00001000) ? led_ON : led_OFF;
+        _period_buffer[10 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00000100) ? led_ON : led_OFF;
+        _period_buffer[12 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00000010) ? led_ON : led_OFF;
+        _period_buffer[14 + 1 + _blue_offset + (pixel * 32)] = (blue & 0b00000001) ? led_ON : led_OFF;
+#if 0
         if (_has_white) {
             _period_buffer[0 + 1 + _white_offset + (pixel * 32)] = (white & 0b10000000) ? led_ON : led_OFF;
-            _period_buffer[1 + 1 + _white_offset + (pixel * 32)] = (white & 0b01000000) ? led_ON : led_OFF;
-            _period_buffer[2 + 1 + _white_offset + (pixel * 32)] = (white & 0b00100000) ? led_ON : led_OFF;
-            _period_buffer[3 + 1 + _white_offset + (pixel * 32)] = (white & 0b00010000) ? led_ON : led_OFF;
-            _period_buffer[4 + 1 + _white_offset + (pixel * 32)] = (white & 0b00001000) ? led_ON : led_OFF;
-            _period_buffer[5 + 1 + _white_offset + (pixel * 32)] = (white & 0b00000100) ? led_ON : led_OFF;
-            _period_buffer[6 + 1 + _white_offset + (pixel * 32)] = (white & 0b00000010) ? led_ON : led_OFF;
-            _period_buffer[7 + 1 + _white_offset + (pixel * 32)] = (white & 0b00000001) ? led_ON : led_OFF;
+            _period_buffer[2 + 1 + _white_offset + (pixel * 32)] = (white & 0b01000000) ? led_ON : led_OFF;
+            _period_buffer[4 + 1 + _white_offset + (pixel * 32)] = (white & 0b00100000) ? led_ON : led_OFF;
+            _period_buffer[6 + 1 + _white_offset + (pixel * 32)] = (white & 0b00010000) ? led_ON : led_OFF;
+            _period_buffer[8 + 1 + _white_offset + (pixel * 32)] = (white & 0b00001000) ? led_ON : led_OFF;
+            _period_buffer[10 + 1 + _white_offset + (pixel * 32)] = (white & 0b00000100) ? led_ON : led_OFF;
+            _period_buffer[12 + 1 + _white_offset + (pixel * 32)] = (white & 0b00000010) ? led_ON : led_OFF;
+            _period_buffer[14 + 1 + _white_offset + (pixel * 32)] = (white & 0b00000001) ? led_ON : led_OFF;
         }
-
+#endif 
         _pixels_changed = true;
     };
 
@@ -485,14 +486,18 @@ struct NeoPixel {
         if (!_pixel_pin.isTransferDone()) {
             return;
         }
-        //        if (!_pixels_changed) { return; }
-        //        _pixels_changed = false;
+       if (!_pixels_changed) { 
+			return; }
+       _pixels_changed = false;
 
-        if (_update_timeout.isPast()) {
+
+		for(uint8_t i=0;i<12;i++)
+			{
             _pixel_pin.startTransfer(_period_buffer);
-            _update_timeout.set(_update_timeout_ms);
+			while(!_pixel_pin.isTransferDone());
         }
     }
+
 };
 
 #endif  // NEOPIXEL_DRIVER_H_ONCE

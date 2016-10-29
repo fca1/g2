@@ -254,6 +254,7 @@ stat_t sr_set_status_report(nvObj_t *nv)
 stat_t sr_request_status_report(cmStatusReportRequest request_type)
 {
     if (sr.status_report_request != SR_OFF) {       // ignore multiple requests. First one wins.
+        if (request_type != SR_REQUEST_IMMEDIATE)	// Si immediate afficher tout de meme **FCA**
         return (STAT_OK);
    }
 
@@ -296,8 +297,7 @@ stat_t sr_status_report_callback()         // called by controller dispatcher
     }
 
     sr.status_report_request = SR_OFF;
-    if ((sr.status_report_request == SR_VERBOSE) ||
-        (sr.status_report_verbosity == SR_VERBOSE)) {
+    if (sr.status_report_request == SR_VERBOSE) {
         _populate_unfiltered_status_report();
     } else {
         if (_populate_filtered_status_report() == false) {  // no new data
